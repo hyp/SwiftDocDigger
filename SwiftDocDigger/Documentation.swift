@@ -5,7 +5,7 @@
 
 /// A documentation node.
 public struct DocumentationNode {
-    enum Element {
+    public enum Element {
         case Text(String)
         case Paragraph
         case CodeVoice
@@ -25,10 +25,10 @@ public struct DocumentationNode {
         /// Unknown documentation element, possibly a custom label like `- MyLabel: ...`.
         case Other(String)
     }
-    let element: Element
-    let children: [DocumentationNode]
+    public let element: Element
+    public let children: [DocumentationNode]
 
-    init(element: Element, children: [DocumentationNode] = []) {
+    public init(element: Element, children: [DocumentationNode] = []) {
         self.element = element
         self.children = children
     }
