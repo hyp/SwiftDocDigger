@@ -19,24 +19,24 @@ private class HTMLPrinter {
         escaped.writeTo(&output)
     }
 
-    func writeHtml(html: String) {
+    func writeHTML(html: String) {
         html.writeTo(&output)
     }
 
     func writeElement(tag: String, node: DocumentationNode) {
-        writeHtml("<\(tag)>")
+        writeHTML("<\(tag)>")
         printNodes(node.children)
-        writeHtml("</\(tag)>")
+        writeHTML("</\(tag)>")
     }
 
     func writeElement(tag: String, attributes: [String: String], node: DocumentationNode) {
-        writeHtml("<\(tag)")
+        writeHTML("<\(tag)")
         for (name, value) in attributes {
-            writeHtml(" \(name)=\"\(value)\"")
+            writeHTML(" \(name)=\"\(value)\"")
         }
-        writeHtml(">")
+        writeHTML(">")
         printNodes(node.children)
-        writeHtml("</\(tag)>")
+        writeHTML("</\(tag)>")
     }
 
     func printNode(node: DocumentationNode) {
@@ -60,7 +60,7 @@ private class HTMLPrinter {
             writeElement("strong")
         case .RawHTML(let html):
             assert(node.children.isEmpty)
-            writeHtml(html)
+            writeHTML(html)
         case .Link(let href):
             self.writeElement("a", attributes: ["href": href], node: node)
         case .BulletedList:
@@ -75,9 +75,9 @@ private class HTMLPrinter {
             // Ignore it (for now?).
             printNodes(node.children)
         case .Label(let label):
-            writeHtml("<dt>\(label): </dt><dd>")
+            writeHTML("<dt>\(label): </dt><dd>")
             printNodes(node.children)
-            writeHtml("</dd>")
+            writeHTML("</dd>")
         case .Other:
             printNodes(node.children)
         }
