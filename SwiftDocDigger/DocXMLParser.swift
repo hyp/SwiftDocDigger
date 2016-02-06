@@ -93,7 +93,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         stack[stack.count - 1].kind = state
     }
 
-    func error(error: SwiftDocXMLError) {
+    func handleError(error: SwiftDocXMLError) {
         guard parseError == nil else {
             return
         }
@@ -143,7 +143,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             let last = stack.last
             push(.Parameter(name: "", discussion: nil))
             guard case .Parameters? = last?.kind else {
-                error(.ElementNotInsideExpectedParentElement(element: elementName, expectedParentElement: "Parameters"))
+                handleError(.ElementNotInsideExpectedParentElement(element: elementName, expectedParentElement: "Parameters"))
                 return
             }
         case "ResultDiscussion":
@@ -156,7 +156,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             push(.Node(.CodeVoice))
         case "Link":
             guard let href = attributeDict["href"] else {
-                error(.MissingRequiredAttribute(element: elementName, attribute: "href"))
+                handleError(.MissingRequiredAttribute(element: elementName, attribute: "href"))
                 push(.Other)
                 return
             }
@@ -204,13 +204,13 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             add(element, children: top.nodes)
         case .Abstract:
             guard abstract == nil else {
-                error(.MoreThanOneElement(element: elementName))
+                handleError(.MoreThanOneElement(element: elementName))
                 return
             }
             abstract = top.nodes
         case .Declaration:
             guard declaration == nil else {
-                error(.MoreThanOneElement(element: elementName))
+                handleError(.MoreThanOneElement(element: elementName))
                 return
             }
             declaration = top.nodes
@@ -221,7 +221,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             assert(parameterDepth > 0)
             parameterDepth -= 1
             guard !name.isEmpty else {
-                error(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
+                handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             let p = Documentation.Parameter(name: name, discussion: discussion)
@@ -229,14 +229,14 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         case .ParameterName(let name):
             assert(parameterDepth > 0)
             guard !name.isEmpty else {
-                error(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
+                handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             assert(top.nodes.isEmpty, "Other nodes present in parameter name")
             switch stack.last?.kind {
             case .Parameter(let currentName, let discussion)?:
                 guard currentName.isEmpty else {
-                    error(.MoreThanOneElement(element: "Parameter.Name"))
+                    handleError(.MoreThanOneElement(element: "Parameter.Name"))
                     return
                 }
                 replaceTop(.Parameter(name: name, discussion: discussion))
@@ -254,7 +254,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             }
         case .ResultDiscussion:
             guard resultDiscussion == nil else {
-                error(.MoreThanOneElement(element: elementName))
+                handleError(.MoreThanOneElement(element: elementName))
                 return
             }
             resultDiscussion = top.nodes
