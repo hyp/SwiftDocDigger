@@ -23,7 +23,7 @@ public enum SwiftDocXMLError : ErrorType {
 }
 
 /// Parses swift's XML documentation.
-func parseSwiftDocAsXML(source: String) throws -> Documentation? {
+public func parseSwiftDocAsXML(source: String) throws -> Documentation? {
     guard !source.isEmpty else {
         return nil
     }
