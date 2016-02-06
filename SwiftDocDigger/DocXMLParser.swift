@@ -84,7 +84,10 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
     var parameters: [Documentation.Parameter]?
 
     func add(element: DocumentationNode.Element, children: [DocumentationNode] = []) {
-        assert(!stack.isEmpty)
+        guard !stack.isEmpty else {
+            assertionFailure()
+            return
+        }
         stack[stack.count - 1].nodes.append(DocumentationNode(element: element, children: children))
     }
 
