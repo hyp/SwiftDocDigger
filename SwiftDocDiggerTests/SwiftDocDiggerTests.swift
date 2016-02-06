@@ -272,4 +272,30 @@ class SwiftDocDiggerTests: XCTestCase {
             XCTFail()
         }
     }
+
+    func testHTMLOutput() {
+        XCTAssertEqual(printSwiftDocToHTML([ DocumentationNode(element: .Text("test")) ]), "test")
+        XCTAssertEqual(printSwiftDocToHTML([ DocumentationNode(element: .Text("test < 2")) ]), "test &lt; 2")
+        XCTAssertEqual(printSwiftDocToHTML([
+            DocumentationNode(element: .Paragraph, children: [
+                DocumentationNode(element: .Text("a ")),
+                DocumentationNode(element: .Text("bc")),
+                DocumentationNode(element: .Strong, children: [
+                    DocumentationNode(element: .Text(" >ef"))
+                ])
+            ]),
+            DocumentationNode(element: .Paragraph, children: [
+                DocumentationNode(element: .Text("This is")),
+                DocumentationNode(element: .CodeVoice, children: [
+                    DocumentationNode(element: .Text("func main()"))
+                ])
+            ]),
+            DocumentationNode(element: .Paragraph, children: [
+                DocumentationNode(element: .Text("Get swift at ")),
+                DocumentationNode(element: .Link(href: "http://swift.org"), children: [
+                    DocumentationNode(element: .Text("the website"))
+                ])
+            ])
+        ]), "<p>a bc<strong> &gt;ef</strong></p><p>This is<code>func main()</code></p><p>Get swift at <a href=\"http://swift.org\">the website</a></p>")
+    }
 }

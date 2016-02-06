@@ -12,6 +12,7 @@
 		FAA836BB1C6664DA0028D6EE /* SwiftDocDiggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA836BA1C6664DA0028D6EE /* SwiftDocDiggerTests.swift */; };
 		FAA836C61C6664F20028D6EE /* Documentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA836C51C6664F20028D6EE /* Documentation.swift */; };
 		FAA836C81C6665080028D6EE /* DocXMLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA836C71C6665080028D6EE /* DocXMLParser.swift */; };
+		FAA836CA1C6668420028D6EE /* HTMLPrinter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA836C91C6668420028D6EE /* HTMLPrinter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		FAA836BC1C6664DA0028D6EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FAA836C51C6664F20028D6EE /* Documentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Documentation.swift; sourceTree = "<group>"; };
 		FAA836C71C6665080028D6EE /* DocXMLParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DocXMLParser.swift; sourceTree = "<group>"; };
+		FAA836C91C6668420028D6EE /* HTMLPrinter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTMLPrinter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +79,7 @@
 			children = (
 				FAA836C51C6664F20028D6EE /* Documentation.swift */,
 				FAA836C71C6665080028D6EE /* DocXMLParser.swift */,
+				FAA836C91C6668420028D6EE /* HTMLPrinter.swift */,
 				FAA836B01C6664DA0028D6EE /* Info.plist */,
 				FAA836AE1C6664DA0028D6EE /* SwiftDocDigger.h */,
 			);
@@ -202,6 +205,7 @@
 			files = (
 				FAA836C61C6664F20028D6EE /* Documentation.swift in Sources */,
 				FAA836C81C6665080028D6EE /* DocXMLParser.swift in Sources */,
+				FAA836CA1C6668420028D6EE /* HTMLPrinter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
