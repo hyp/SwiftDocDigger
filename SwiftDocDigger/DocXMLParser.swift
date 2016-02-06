@@ -58,8 +58,8 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         case Abstract
         case Discussion
         case Parameters
-        case Parameter(name: String, discussion: [DocumentationNode]?)
-        case ParameterName(String)
+        case Parameter(name: NSMutableString, discussion: [DocumentationNode]?)
+        case ParameterName(NSMutableString)
         case ParameterDiscussion
         case ResultDiscussion
         case Node(DocumentationNode.Element)
@@ -220,29 +220,31 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         case .Discussion:
             // Docs can have multiple discussions.
             discussion = discussion.flatMap { $0 + top.nodes } ?? top.nodes
-        case .Parameter(let name, let discussion):
+        case .Parameter(let nameString, let discussion):
             assert(parameterDepth > 0)
             parameterDepth -= 1
+            let name = nameString as String
             guard !name.isEmpty else {
                 handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             let p = Documentation.Parameter(name: name, discussion: discussion)
             parameters = parameters.flatMap { $0 + [ p ] } ?? [ p ]
-        case .ParameterName(let name):
+        case .ParameterName(let nameString):
             assert(parameterDepth > 0)
+            let name = nameString as String
             guard !name.isEmpty else {
                 handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             assert(top.nodes.isEmpty, "Other nodes present in parameter name")
             switch stack.last?.kind {
-            case .Parameter(let currentName, let discussion)?:
-                guard currentName.isEmpty else {
+            case .Parameter(let currentName, _)?:
+                guard (currentName as String).isEmpty else {
                     handleError(.MoreThanOneElement(element: "Parameter.Name"))
                     return
                 }
-                replaceTop(.Parameter(name: name, discussion: discussion))
+                currentName.setString(name)
             default:
                 assertionFailure()
             }
@@ -271,7 +273,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             return
         }
         if case .ParameterName(let name)? = stack.last?.kind {
-            replaceTop(.ParameterName(name + string))
+            name.appendString(string)
             return
         }
         add(.Text(string))
