@@ -6,6 +6,8 @@
 import Foundation
 
 public enum SwiftDocXMLError : ErrorType {
+    case UnknownParseError
+
     /// An xml parse error.
     case ParseError(NSError)
 
@@ -37,7 +39,7 @@ public func parseSwiftDocAsXML(source: String) throws -> Documentation? {
         parser.delegate = delegate
         guard parser.parse() else {
             guard let error = parser.parserError else {
-                return nil
+                throw SwiftDocXMLError.UnknownParseError
             }
             throw SwiftDocXMLError.ParseError(error)
         }
