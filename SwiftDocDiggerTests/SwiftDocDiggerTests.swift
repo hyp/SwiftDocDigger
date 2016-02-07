@@ -297,5 +297,15 @@ class SwiftDocDiggerTests: XCTestCase {
                 ])
             ])
         ]), "<p>a bc<strong> &gt;ef</strong></p><p>This is<code>func main()</code></p><p>Get swift at <a href=\"http://swift.org\">the website</a></p>")
+        XCTAssertEqual(printSwiftDocToHTML([
+            DocumentationNode(element: .CodeBlock(language: "swift"), children: [
+                DocumentationNode(element: .NumberedCodeLine, children: [
+                    DocumentationNode(element: .Text("let a = 22"))
+                ]),
+                DocumentationNode(element: .NumberedCodeLine, children: [
+                    DocumentationNode(element: .Text("let b = a"))
+                ])
+            ])
+        ]), "<pre>let a = 22\nlet b = a\n</pre>")
     }
 }

@@ -74,6 +74,7 @@ private class HTMLPrinter {
         case .NumberedCodeLine:
             // Ignore it (for now?).
             printNodes(node.children)
+            writeHTML("\n")
         case .Label(let label):
             writeHTML("<dt>\(label): </dt><dd>")
             printNodes(node.children)
