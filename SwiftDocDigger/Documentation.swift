@@ -46,4 +46,12 @@ public struct Documentation {
     public let discussion: [DocumentationNode]?
     public let parameters: [Parameter]?
     public let resultDiscussion: [DocumentationNode]?
+
+    public init(declaration: [DocumentationNode]?, abstract: [DocumentationNode]?, discussion: [DocumentationNode]?, parameters: [Parameter]?, resultDiscussion: [DocumentationNode]?) {
+        self.declaration = declaration
+        self.abstract = abstract
+        self.discussion = discussion
+        self.parameters = parameters
+        self.resultDiscussion = resultDiscussion
+    }
 }
