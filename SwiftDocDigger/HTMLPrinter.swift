@@ -5,14 +5,30 @@
 
 import Foundation
 
-public func printSwiftDocToHTML(documentation: [DocumentationNode]) -> String {
-    let printer = HTMLPrinter()
+public protocol HTMLPrinter: class {
+    func writeText(string: String)
+    func writeHTML(html: String)
+    func printNodes(nodes: [DocumentationNode])
+}
+
+public protocol HTMLPrinterDelegate: class {
+    /// Returns true if this node should be printed using the default behaviour.
+    func HTMLPrinterShouldPrintNode(printer: HTMLPrinter, node: DocumentationNode) -> Bool
+}
+
+public func printSwiftDocToHTML(documentation: [DocumentationNode], delegate: HTMLPrinterDelegate? = nil) -> String {
+    let printer = HTMLPrinterImpl(delegate: delegate)
     printer.printNodes(documentation)
     return printer.output
 }
 
-private class HTMLPrinter {
+private final class HTMLPrinterImpl: HTMLPrinter {
+    weak var delegate: HTMLPrinterDelegate?
     var output: String = ""
+
+    init(delegate: HTMLPrinterDelegate?) {
+        self.delegate = delegate
+    }
 
     func writeText(string: String) {
         let escaped = CFXMLCreateStringByEscapingEntities(nil, string, nil) as String
@@ -40,6 +56,9 @@ private class HTMLPrinter {
     }
 
     func printNode(node: DocumentationNode) {
+        guard delegate?.HTMLPrinterShouldPrintNode(self, node: node) ?? true else {
+            return
+        }
         func writeElement(tag: String) {
             self.writeElement(tag, node: node)
         }
