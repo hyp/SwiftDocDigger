@@ -47,7 +47,7 @@ class SwiftDocDiggerTests: XCTestCase {
 
     func testDocXMLParseErrors() {
         do {
-            try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract><Para></Abstract></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract><Para></Abstract></Class>")
             XCTFail()
         } catch SwiftDocXMLError.parseError(let error) {
             XCTAssertEqual(error.domain, XMLParser.errorDomain)
@@ -56,7 +56,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract><Link>Foo</Link>A</Abstract></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract><Link>Foo</Link>A</Abstract></Class>")
             XCTFail()
         } catch SwiftDocXMLError.missingRequiredAttribute(element: "Link", attribute: "href") {
         } catch {
@@ -64,7 +64,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract>B</Abstract><Abstract>A</Abstract></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract>B</Abstract><Abstract>A</Abstract></Class>")
             XCTFail()
         } catch SwiftDocXMLError.moreThanOneElement("Abstract") {
         } catch {
@@ -72,7 +72,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Name>Bound</Name><Name>Another one</Name><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Name>Bound</Name><Name>Another one</Name><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
             XCTFail()
         } catch SwiftDocXMLError.moreThanOneElement("Parameter.Name") {
         } catch {
@@ -80,7 +80,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
             XCTFail()
         } catch SwiftDocXMLError.missingRequiredChildElement("Parameter", "Name") {
         } catch {
@@ -88,7 +88,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Name></Name><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Name></Name><Discussion><Para>Test.</Para></Discussion></Parameter></Parameters></Class>")
             XCTFail()
         } catch SwiftDocXMLError.missingRequiredChildElement("Parameter", "Name") {
         } catch {
@@ -96,7 +96,7 @@ class SwiftDocDiggerTests: XCTestCase {
         }
 
         do {
-            try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameter><Name>Test</Name><Discussion><Para>Test.</Para></Discussion></Parameter></Class>")
+            let _ = try parseSwiftDocAsXML("<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameter><Name>Test</Name><Discussion><Para>Test.</Para></Discussion></Parameter></Class>")
             XCTFail()
         } catch SwiftDocXMLError.elementNotInsideExpectedParentElement("Parameter", "Parameters") {
         } catch {
