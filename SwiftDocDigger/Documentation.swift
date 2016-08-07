@@ -6,24 +6,24 @@
 /// A documentation node.
 public struct DocumentationNode {
     public enum Element {
-        case Text(String)
-        case Paragraph
-        case CodeVoice
-        case Emphasis
-        case Strong
-        case Bold
-        case RawHTML(String)
-        case Link(href: String)
-        case BulletedList
-        case NumberedList
-        case ListItem
-        case CodeBlock(language: String?)
-        case NumberedCodeLine
+        case text(String)
+        case paragraph
+        case codeVoice
+        case emphasis
+        case strong
+        case bold
+        case rawHTML(String)
+        case link(href: String)
+        case bulletedList
+        case numberedList
+        case listItem
+        case codeBlock(language: String?)
+        case numberedCodeLine
         /// A label, usually written as `- Label: ...` in the comment.
         /// Used to store labels like 'note', 'requirements', etc.
-        case Label(String)
+        case label(String)
         /// Unknown documentation element, possibly a custom label like `- MyLabel: ...`.
-        case Other(String)
+        case other(String)
     }
     public let element: Element
     public let children: [DocumentationNode]

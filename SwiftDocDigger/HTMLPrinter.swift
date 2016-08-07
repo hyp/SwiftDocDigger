@@ -6,17 +6,17 @@
 import Foundation
 
 public protocol HTMLPrinter: class {
-    func writeText(string: String)
-    func writeHTML(html: String)
-    func printNodes(nodes: [DocumentationNode])
+    func writeText(_ string: String)
+    func writeHTML(_ html: String)
+    func printNodes(_ nodes: [DocumentationNode])
 }
 
 public protocol HTMLPrinterDelegate: class {
     /// Returns true if this node should be printed using the default behaviour.
-    func HTMLPrinterShouldPrintNode(printer: HTMLPrinter, node: DocumentationNode) -> Bool
+    func HTMLPrinterShouldPrintNode(_ printer: HTMLPrinter, node: DocumentationNode) -> Bool
 }
 
-public func printSwiftDocToHTML(documentation: [DocumentationNode], delegate: HTMLPrinterDelegate? = nil) -> String {
+public func printSwiftDocToHTML(_ documentation: [DocumentationNode], delegate: HTMLPrinterDelegate? = nil) -> String {
     let printer = HTMLPrinterImpl(delegate: delegate)
     printer.printNodes(documentation)
     return printer.output
@@ -30,22 +30,22 @@ private final class HTMLPrinterImpl: HTMLPrinter {
         self.delegate = delegate
     }
 
-    func writeText(string: String) {
+    func writeText(_ string: String) {
         let escaped = CFXMLCreateStringByEscapingEntities(nil, string, nil) as String
-        escaped.writeTo(&output)
+        escaped.write(to: &output)
     }
 
-    func writeHTML(html: String) {
-        html.writeTo(&output)
+    func writeHTML(_ html: String) {
+        html.write(to: &output)
     }
 
-    func writeElement(tag: String, node: DocumentationNode) {
+    func writeElement(_ tag: String, node: DocumentationNode) {
         writeHTML("<\(tag)>")
         printNodes(node.children)
         writeHTML("</\(tag)>")
     }
 
-    func writeElement(tag: String, attributes: [String: String], node: DocumentationNode) {
+    func writeElement(_ tag: String, attributes: [String: String], node: DocumentationNode) {
         writeHTML("<\(tag)")
         for (name, value) in attributes {
             writeHTML(" \(name)=\"\(value)\"")
@@ -55,55 +55,55 @@ private final class HTMLPrinterImpl: HTMLPrinter {
         writeHTML("</\(tag)>")
     }
 
-    func printNode(node: DocumentationNode) {
+    func printNode(_ node: DocumentationNode) {
         guard delegate?.HTMLPrinterShouldPrintNode(self, node: node) ?? true else {
             return
         }
-        func writeElement(tag: String) {
+        func writeElement(_ tag: String) {
             self.writeElement(tag, node: node)
         }
 
         switch node.element {
-        case .Text(let string):
+        case .text(let string):
             assert(node.children.isEmpty)
             writeText(string)
-        case .Paragraph:
+        case .paragraph:
             writeElement("p")
-        case .CodeVoice:
+        case .codeVoice:
             writeElement("code")
-        case .Emphasis:
+        case .emphasis:
             writeElement("em")
-        case .Bold:
+        case .bold:
             writeElement("b")
-        case .Strong:
+        case .strong:
             writeElement("strong")
-        case .RawHTML(let html):
+        case .rawHTML(let html):
             assert(node.children.isEmpty)
             writeHTML(html)
-        case .Link(let href):
+        case .link(let href):
             self.writeElement("a", attributes: ["href": href], node: node)
-        case .BulletedList:
+        case .bulletedList:
             writeElement("ul")
-        case .NumberedList:
+        case .numberedList:
             writeElement("ol")
-        case .ListItem:
+        case .listItem:
             writeElement("li")
-        case .CodeBlock:
+        case .codeBlock:
             writeElement("pre")
-        case .NumberedCodeLine:
+        case .numberedCodeLine:
             // Ignore it (for now?).
             printNodes(node.children)
             writeHTML("\n")
-        case .Label(let label):
+        case .label(let label):
             writeHTML("<dt>\(label): </dt><dd>")
             printNodes(node.children)
             writeHTML("</dd>")
-        case .Other:
+        case .other:
             printNodes(node.children)
         }
     }
 
-    func printNodes(nodes: [DocumentationNode]) {
+    func printNodes(_ nodes: [DocumentationNode]) {
         for node in nodes {
             printNode(node)
         }

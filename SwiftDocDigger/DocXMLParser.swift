@@ -5,43 +5,43 @@
 
 import Foundation
 
-public enum SwiftDocXMLError : ErrorType {
-    case UnknownParseError
+public enum SwiftDocXMLError : Error {
+    case unknownParseError
 
     /// An xml parse error.
-    case ParseError(NSError)
+    case parseError(NSError)
 
     /// A required attribute is missing, e.g. <Link> without href attribute.
-    case MissingRequiredAttribute(element: String, attribute: String)
+    case missingRequiredAttribute(element: String, attribute: String)
 
     /// A required child element is missing e.g. <Parameter> without the <Name>.
-    case MissingRequiredChildElement(element: String, childElement: String)
+    case missingRequiredChildElement(element: String, childElement: String)
 
     /// More than one element is specified where just one is needed.
-    case MoreThanOneElement(element: String)
+    case moreThanOneElement(element: String)
 
     /// An element is outside of its supposed parent.
-    case ElementNotInsideExpectedParentElement(element: String, expectedParentElement: String)
+    case elementNotInsideExpectedParentElement(element: String, expectedParentElement: String)
 }
 
 /// Parses swift's XML documentation.
-public func parseSwiftDocAsXML(source: String) throws -> Documentation? {
+public func parseSwiftDocAsXML(_ source: String) throws -> Documentation? {
     guard !source.isEmpty else {
         return nil
     }
-    guard let data = source.dataUsingEncoding(NSUTF8StringEncoding) else {
+    guard let data = source.data(using: String.Encoding.utf8) else {
         assertionFailure()
         return nil
     }
     let delegate = SwiftXMLDocParser()
     do {
-        let parser = NSXMLParser(data: data)
+        let parser = XMLParser(data: data)
         parser.delegate = delegate
         guard parser.parse() else {
             guard let error = parser.parserError else {
-                throw SwiftDocXMLError.UnknownParseError
+                throw SwiftDocXMLError.unknownParseError
             }
-            throw SwiftDocXMLError.ParseError(error)
+            throw SwiftDocXMLError.parseError(error)
         }
     }
     if let error = delegate.parseError {
@@ -51,20 +51,20 @@ public func parseSwiftDocAsXML(source: String) throws -> Documentation? {
     return Documentation(declaration: delegate.declaration, abstract: delegate.abstract, discussion: delegate.discussion, parameters: delegate.parameters, resultDiscussion: delegate.resultDiscussion)
 }
 
-private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
+private class SwiftXMLDocParser: NSObject, XMLParserDelegate {
     enum StateKind {
-        case Root
-        case Declaration
-        case Abstract
-        case Discussion
-        case Parameters
-        case Parameter(name: NSMutableString, discussion: [DocumentationNode]?)
-        case ParameterName(NSMutableString)
-        case ParameterDiscussion
-        case ResultDiscussion
-        case Node(DocumentationNode.Element)
+        case root
+        case declaration
+        case abstract
+        case discussion
+        case parameters
+        case parameter(name: NSMutableString, discussion: [DocumentationNode]?)
+        case parameterName(NSMutableString)
+        case parameterDiscussion
+        case resultDiscussion
+        case node(DocumentationNode.Element)
         // Some other node we don't really care about.
-        case Other
+        case other
     }
     struct State {
         var kind: StateKind
@@ -83,7 +83,7 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
     var resultDiscussion: [DocumentationNode]?
     var parameters: [Documentation.Parameter]?
 
-    func add(element: DocumentationNode.Element, children: [DocumentationNode] = []) {
+    func add(_ element: DocumentationNode.Element, children: [DocumentationNode] = []) {
         guard !stack.isEmpty else {
             assertionFailure()
             return
@@ -91,20 +91,20 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         stack[stack.count - 1].nodes.append(DocumentationNode(element: element, children: children))
     }
 
-    func replaceTop(state: StateKind) {
+    func replaceTop(_ state: StateKind) {
         assert(!stack.isEmpty)
         stack[stack.count - 1].kind = state
     }
 
-    func handleError(error: SwiftDocXMLError) {
+    func handleError(_ error: SwiftDocXMLError) {
         guard parseError == nil else {
             return
         }
         parseError = error
     }
 
-    @objc func parser(parser: NSXMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
-        func push(state: StateKind) {
+    @objc func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String]) {
+        func push(_ state: StateKind) {
             stack.append(State(kind: state, elementName: elementName, nodes: []))
         }
         
@@ -112,154 +112,154 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
             // Root node.
             assert(!hasFoundRoot)
             assert(elementName == "Class" || elementName == "Function" || elementName == "Other")
-            push(.Root)
+            push(.root)
             hasFoundRoot = true
             return
         }
-        if case .Parameter? = stack.last?.kind {
+        if case .parameter? = stack.last?.kind {
             // Parameter information.
             switch elementName {
             case "Name":
                 assert(parameterDepth > 0)
-                push(.ParameterName(""))
+                push(.parameterName(""))
             case "Discussion":
                 assert(parameterDepth > 0)
-                push(.ParameterDiscussion)
+                push(.parameterDiscussion)
             default:
                 // Don't really care about the other nodes here (like Direction).
-                push(.Other)
+                push(.other)
             }
             return
         }
         switch elementName {
         case "Declaration":
-            push(.Declaration)
+            push(.declaration)
         case "Abstract":
-            push(.Abstract)
+            push(.abstract)
         case "Discussion":
-            push(.Discussion)
+            push(.discussion)
         case "Parameters":
-            push(.Parameters)
+            push(.parameters)
         case "Parameter":
             assert(parameterDepth == 0)
             parameterDepth += 1
             let last = stack.last
-            push(.Parameter(name: "", discussion: nil))
-            guard case .Parameters? = last?.kind else {
-                handleError(.ElementNotInsideExpectedParentElement(element: elementName, expectedParentElement: "Parameters"))
+            push(.parameter(name: "", discussion: nil))
+            guard case .parameters? = last?.kind else {
+                handleError(.elementNotInsideExpectedParentElement(element: elementName, expectedParentElement: "Parameters"))
                 return
             }
         case "ResultDiscussion":
-            push(.ResultDiscussion)
+            push(.resultDiscussion)
         case "Para":
-            push(.Node(.Paragraph))
+            push(.node(.paragraph))
         case "rawHTML":
-            push(.Node(.RawHTML("")))
+            push(.node(.rawHTML("")))
         case "codeVoice":
-            push(.Node(.CodeVoice))
+            push(.node(.codeVoice))
         case "Link":
             guard let href = attributeDict["href"] else {
-                handleError(.MissingRequiredAttribute(element: elementName, attribute: "href"))
-                push(.Other)
+                handleError(.missingRequiredAttribute(element: elementName, attribute: "href"))
+                push(.other)
                 return
             }
-            push(.Node(.Link(href: href)))
+            push(.node(.link(href: href)))
         case "emphasis":
-            push(.Node(.Emphasis))
+            push(.node(.emphasis))
         case "strong":
-            push(.Node(.Strong))
+            push(.node(.strong))
         case "bold":
-            push(.Node(.Bold))
+            push(.node(.bold))
         case "List-Bullet":
-            push(.Node(.BulletedList))
+            push(.node(.bulletedList))
         case "List-Number":
-            push(.Node(.NumberedList))
+            push(.node(.numberedList))
         case "Item":
-            push(.Node(.ListItem))
+            push(.node(.listItem))
         case "CodeListing":
-            push(.Node(.CodeBlock(language: attributeDict["language"])))
+            push(.node(.codeBlock(language: attributeDict["language"])))
         case "zCodeLineNumbered":
-            push(.Node(.NumberedCodeLine))
+            push(.node(.numberedCodeLine))
         case "Complexity", "Note", "Requires", "Warning", "Postcondition", "Precondition":
-            push(.Node(.Label(elementName)))
+            push(.node(.label(elementName)))
         case "See":
-            push(.Node(.Label("See also")))
+            push(.node(.label("See also")))
         case "Name", "USR":
-            guard case .Root? = stack.last?.kind else {
+            guard case .root? = stack.last?.kind else {
                 assertionFailure("This node is expected to be immediately inside the root node.")
                 return
             }
             // Don't really need these ones.
-            push(.Other)
+            push(.other)
         default:
-            push(.Node(.Other(elementName)))
+            push(.node(.other(elementName)))
         }
     }
 
-    @objc func parser(parser: NSXMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+    @objc func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
         guard let top = stack.popLast() else {
             assertionFailure("Invalid XML")
             return
         }
         assert(top.elementName == elementName)
         switch top.kind {
-        case .Node(let element):
+        case .node(let element):
             add(element, children: top.nodes)
-        case .Abstract:
+        case .abstract:
             guard abstract == nil else {
-                handleError(.MoreThanOneElement(element: elementName))
+                handleError(.moreThanOneElement(element: elementName))
                 return
             }
             abstract = top.nodes
-        case .Declaration:
+        case .declaration:
             guard declaration == nil else {
-                handleError(.MoreThanOneElement(element: elementName))
+                handleError(.moreThanOneElement(element: elementName))
                 return
             }
             declaration = top.nodes
-        case .Discussion:
+        case .discussion:
             // Docs can have multiple discussions.
             discussion = discussion.flatMap { $0 + top.nodes } ?? top.nodes
-        case .Parameter(let nameString, let discussion):
+        case .parameter(let nameString, let discussion):
             assert(parameterDepth > 0)
             parameterDepth -= 1
             let name = nameString as String
             guard !name.isEmpty else {
-                handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
+                handleError(.missingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             let p = Documentation.Parameter(name: name, discussion: discussion)
             parameters = parameters.flatMap { $0 + [ p ] } ?? [ p ]
-        case .ParameterName(let nameString):
+        case .parameterName(let nameString):
             assert(parameterDepth > 0)
             let name = nameString as String
             guard !name.isEmpty else {
-                handleError(.MissingRequiredChildElement(element: "Parameter", childElement: "Name"))
+                handleError(.missingRequiredChildElement(element: "Parameter", childElement: "Name"))
                 return
             }
             assert(top.nodes.isEmpty, "Other nodes present in parameter name")
             switch stack.last?.kind {
-            case .Parameter(let currentName, _)?:
+            case .parameter(let currentName, _)?:
                 guard (currentName as String).isEmpty else {
-                    handleError(.MoreThanOneElement(element: "Parameter.Name"))
+                    handleError(.moreThanOneElement(element: "Parameter.Name"))
                     return
                 }
                 currentName.setString(name)
             default:
                 assertionFailure()
             }
-        case .ParameterDiscussion:
+        case .parameterDiscussion:
             assert(parameterDepth > 0)
             switch stack.last?.kind {
-            case .Parameter(let name, let discussion)?:
+            case .parameter(let name, let discussion)?:
                 // Parameters can have multiple discussions.
-                replaceTop(.Parameter(name: name, discussion: discussion.flatMap { $0 + top.nodes } ?? top.nodes))
+                replaceTop(.parameter(name: name, discussion: discussion.flatMap { $0 + top.nodes } ?? top.nodes))
             default:
                 assertionFailure()
             }
-        case .ResultDiscussion:
+        case .resultDiscussion:
             guard resultDiscussion == nil else {
-                handleError(.MoreThanOneElement(element: elementName))
+                handleError(.moreThanOneElement(element: elementName))
                 return
             }
             resultDiscussion = top.nodes
@@ -268,28 +268,28 @@ private class SwiftXMLDocParser: NSObject, NSXMLParserDelegate {
         }
     }
 
-    @objc func parser(parser: NSXMLParser, foundCharacters string: String) {
+    @objc func parser(_ parser: XMLParser, foundCharacters string: String) {
         guard stack.count > 1 else {
             return
         }
-        if case .ParameterName(let name)? = stack.last?.kind {
-            name.appendString(string)
+        if case .parameterName(let name)? = stack.last?.kind {
+            name.append(string)
             return
         }
-        add(.Text(string))
+        add(.text(string))
     }
 
-    @objc func parser(parser: NSXMLParser, foundCDATA CDATABlock: NSData) {
-        guard let str = String(data: CDATABlock, encoding: NSUTF8StringEncoding) else {
+    @objc func parser(_ parser: XMLParser, foundCDATA CDATABlock: Data) {
+        guard let str = String(data: CDATABlock, encoding: String.Encoding.utf8) else {
             assertionFailure()
             return
         }
         switch stack.last?.kind {
-        case .Node(.RawHTML(let html))?:
-            replaceTop(.Node(.RawHTML(html + str)))
+        case .node(.rawHTML(let html))?:
+            replaceTop(.node(.rawHTML(html + str)))
             break
-        case .Node(.NumberedCodeLine)?:
-            add(.Text(str))
+        case .node(.numberedCodeLine)?:
+            add(.text(str))
             break
         default:
             assertionFailure("Unsupported data block")
