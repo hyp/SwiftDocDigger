@@ -108,8 +108,8 @@ class SwiftDocDiggerTests: XCTestCase {
         do {
             let source = "<Class><Name>Int</Name><USR>s:Si</USR><Declaration>struct Int : SignedIntegerType, Comparable, Equatable</Declaration><Abstract><Para>A 64-bit signed integer value type.</Para></Abstract></Class>"
             guard let result = try parseSwiftDocAsXML(source),
-                declaration = result.declaration,
-                abstract = result.abstract else {
+                let declaration = result.declaration,
+                let abstract = result.abstract else {
                     XCTFail()
                     return
             }
@@ -127,9 +127,9 @@ class SwiftDocDiggerTests: XCTestCase {
         do {
             let source = "<Class><Name>String</Name><USR>s:SS</USR><Declaration>struct String</Declaration><Abstract><Para>An arbitrary Unicode string value.</Para></Abstract><Discussion><rawHTML><![CDATA[<h1>]]></rawHTML>Unicode-Correct<rawHTML><![CDATA[</h1>]]></rawHTML><Para>Swift strings blah blah blah <codeVoice>==</codeVoice> operator checks for <Link href=\"http://www.unicode.org/glossary/#deterministic_comparison\">Unicode canonical equivalence</Link>, so etc etc.</Para><Para><emphasis>Test A</emphasis><strong>Test B</strong><bold>Another one</bold></Para><List-Bullet><Item>A</Item><Item>BB</Item><Item>CCC</Item></List-Bullet><CodeListing language=\"swift\"><zCodeLineNumbered><![CDATA[var a = \"foo\"]]></zCodeLineNumbered><zCodeLineNumbered><![CDATA[print(\"a=\\(a), b=???\")     // a=foo, b=foobar]]></zCodeLineNumbered><zCodeLineNumbered></zCodeLineNumbered></CodeListing><List-Number><Item>Foo</Item><Item>Bar</Item></List-Number></Discussion></Class>"
             guard let result = try parseSwiftDocAsXML(source),
-                declaration = result.declaration,
-                abstract = result.abstract,
-                discussion = result.discussion else {
+                let declaration = result.declaration,
+                let abstract = result.abstract,
+                let discussion = result.discussion else {
                     XCTFail()
                     return
             }
@@ -176,9 +176,9 @@ class SwiftDocDiggerTests: XCTestCase {
         do {
             let source = "<Function><Name>generate()</Name><USR>s:FVs26AnyBidirectionalCollection8generateFT_GVs12AnyGeneratorx_</USR><Declaration>func generate()</Declaration><Abstract><Para>Returns a generator over the elements of this collection.</Para></Abstract><Discussion><Complexity><Para>O(1).</Para></Complexity><Note>Something</Note><See>That</See></Discussion><Discussion><Para>Part 2</Para></Discussion><Discussion><MyLabel>AF</MyLabel></Discussion></Function>"
             guard let result = try parseSwiftDocAsXML(source),
-                declaration = result.declaration,
-                abstract = result.abstract,
-                discussion = result.discussion else {
+                let declaration = result.declaration,
+                let abstract = result.abstract,
+                let discussion = result.discussion else {
                     XCTFail()
                     return
             }
@@ -211,9 +211,9 @@ class SwiftDocDiggerTests: XCTestCase {
         do {
             let source = "<Function><Name>advancedBy(_:)</Name><USR>s:FPs16ForwardIndexType10advancedByFwx8Distancex</USR><Declaration>@warn_unused_result\nfunc advancedBy(n: Self.Distance)</Declaration><Abstract><Para>Return the result of advancing self by n positions.</Para></Abstract><ResultDiscussion><Para>Results are valid</Para></ResultDiscussion></Function>"
             guard let result = try parseSwiftDocAsXML(source),
-                declaration = result.declaration,
-                abstract = result.abstract,
-                resultDiscussion = result.resultDiscussion else {
+                let declaration = result.declaration,
+                let abstract = result.abstract,
+                let resultDiscussion = result.resultDiscussion else {
                     XCTFail()
                     return
             }
@@ -233,9 +233,9 @@ class SwiftDocDiggerTests: XCTestCase {
         do {
             let source = "<Class><Name>ClosedInterval</Name><USR>s:Vs14ClosedInterval</USR><Declaration>struct ClosedInterval</Declaration><Abstract><Para>A closed IntervalType.</Para></Abstract><Parameters><Parameter><Name>Bound</Name><Direction isExplicit=\"0\">in</Direction><Discussion><Para>The type of the endpoints.</Para></Discussion></Parameter><Parameter><Name>Test</Name><Discussion><Para>Part 1</Para></Discussion><Discussion><Para>Fin.</Para></Discussion></Parameter></Parameters></Class>"
             guard let result = try parseSwiftDocAsXML(source),
-                declaration = result.declaration,
-                abstract = result.abstract,
-                parameters = result.parameters else {
+                let declaration = result.declaration,
+                let abstract = result.abstract,
+                let parameters = result.parameters else {
                     XCTFail()
                     return
             }
