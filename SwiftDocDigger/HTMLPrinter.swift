@@ -31,7 +31,7 @@ private final class HTMLPrinterImpl: HTMLPrinter {
     }
 
     func writeText(_ string: String) {
-        let escaped = CFXMLCreateStringByEscapingEntities(nil, string, nil) as String
+        let escaped = CFXMLCreateStringByEscapingEntities(nil, string as CFString!, nil) as String
         escaped.write(to: &output)
     }
 

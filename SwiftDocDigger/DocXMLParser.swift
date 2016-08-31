@@ -9,7 +9,7 @@ public enum SwiftDocXMLError : Error {
     case unknownParseError
 
     /// An xml parse error.
-    case parseError(NSError)
+    case parseError(Error)
 
     /// A required attribute is missing, e.g. <Link> without href attribute.
     case missingRequiredAttribute(element: String, attribute: String)

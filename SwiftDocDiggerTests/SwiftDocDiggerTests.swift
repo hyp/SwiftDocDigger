@@ -50,7 +50,7 @@ class SwiftDocDiggerTests: XCTestCase {
             let _ = try parseSwiftDocAsXML("<Class><Name>Int</Name><Abstract><Para></Abstract></Class>")
             XCTFail()
         } catch SwiftDocXMLError.parseError(let error) {
-            XCTAssertEqual(error.domain, XMLParser.errorDomain)
+            XCTAssertEqual((error as NSError).domain, XMLParser.errorDomain)
         } catch {
             XCTFail()
         }
